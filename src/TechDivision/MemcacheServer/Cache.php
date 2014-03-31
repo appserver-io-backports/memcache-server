@@ -23,7 +23,7 @@
 
 namespace TechDivision\MemcacheServer;
 
-use TechDivision\MemacheProtocol\CacheRequest;
+use TechDivision\MemcacheProtocol\CacheRequest;
 
 /**
  * Interface for all cache server implementations. 

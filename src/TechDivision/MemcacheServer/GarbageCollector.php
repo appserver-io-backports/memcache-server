@@ -22,7 +22,7 @@
  * @link      https://github.com/memcached/memcached/blob/master/doc/protocol.txt
  */
 
-namespace TechDivision\LemCacheContainer\Workers;
+namespace TechDivision\MemcacheServer;
 
 use TechDivision\WebServer\Interfaces\ServerContextInterface;
 
