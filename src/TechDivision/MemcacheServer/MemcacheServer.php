@@ -1,7 +1,7 @@
 <?php
 
 /**
- * TechDivision\MemcacheServer\Memcache
+ * TechDivision\MemcacheServer\MemcacheServer
  *
  * NOTICE OF LICENSE
  *
@@ -24,7 +24,7 @@
 
 namespace TechDivision\MemcacheServer;
 
-use TechDivision\MemacheProtocol\CacheRequest;
+use TechDivision\MemcacheProtocol\CacheRequest;
 
 /**
  * Memcache compatible cache implementation.
@@ -39,7 +39,7 @@ use TechDivision\MemacheProtocol\CacheRequest;
  * @link      http://www.appserver.io
  * @link      https://github.com/memcached/memcached/blob/master/doc/protocol.txt
  */
-class Memcache implements Cache
+class MemcacheServer implements Cache
 {
 
     /**
@@ -793,8 +793,6 @@ class Memcache implements Cache
     protected function storeSet($key, $flags, $expTime, $bytes, $value)
     {
         
-        error_log(__METHOD__ . ':' . __LINE__);
-        
         // initialize the array with the data
         $ar = array();
         $ar['key'] = $key;
@@ -802,21 +800,14 @@ class Memcache implements Cache
         $ar['exptime'] = $expTime;
         $ar['bytes'] = $bytes;
         $ar['value'] = $value;
-        
-        error_log(__METHOD__ . ':' . __LINE__);
-        error_log(var_export($this->store, true));
 
         // lock the container and try to store the data
         $this->store->lock();
-        
-        error_log(__METHOD__ . ':' . __LINE__);
         $this->store[$this->getStorePrefix() . $key] = $ar;
         // add for every new entry a garbage collector Entry - another thread will keep a eye on it
         $invalidator = $this->store[$this->getGCPrefix()];
         $invalidator[$key] = $expTime;
         $this->store[$this->getGCPrefix()] = $invalidator;
-        
-        error_log(__METHOD__ . ':' . __LINE__);
         $this->store->unlock();
         
         // return TRUE if the data has been stored successfully
