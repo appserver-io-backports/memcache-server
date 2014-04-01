@@ -50,26 +50,11 @@ interface Cache
     public function request(CacheRequest $cacheRequest);
 
     /**
-     * Returns following state of the connection, one of resume, 
-     * reset or close.
-     *
-     * @return string The state itself
-     */
-    public function getState();
-
-    /**
      * Reset all attributes for reusing the object.
      *
      * @return void
      */
     public function reset();
-
-    /**
-     * Returns the response that will be sent back to the client.
-     *
-     * @return string The response that will be sent back
-     */
-    public function getResponse();
     
     /**
      * Collections the garbage by removing the cache entries from
@@ -78,4 +63,26 @@ interface Cache
      * @return void
      */
     public function gc();
+
+    /**
+     * Returns following state of the connection, one of resume, 
+     * reset or close.
+     *
+     * @return string The state itself
+     */
+    public function getState();
+
+    /**
+     * Returns the response that will be sent back to the client.
+     *
+     * @return string The response that will be sent back
+     */
+    public function getResponse();
+
+    /**
+     * The new line value used.
+     *
+     * @return string The new line value
+     */
+    public function getNewLine();
 }
