@@ -316,8 +316,6 @@ class MemcacheServer implements Cache
         }
     }
 
-
-
     /**
      * MemCache "delete" Action
      *
@@ -373,6 +371,31 @@ class MemcacheServer implements Cache
         // set Response for client communication
         $this->setResponse($response);
     }
+
+    /**
+     * MemCache "flush" action.
+     *
+     * @return void
+     * @todo This has to be refactored, because we don't have to delete the values immediately, we've to mark them as deleted 
+     */
+    protected function flushAllAction()
+    {
+
+        // lock the store and flush all values
+        $this->store->lock();
+        foreach ($this->store as $key => $value) {
+            unset($this->store[$key]);
+        }
+        
+        // unlock the store
+        $this->store->unlock();
+        
+        // API object should deleted after sending response to client
+        $this->setState("reset");
+        
+        // set Response for client communication
+        $this->setResponse('OK');
+    }
     
     /**
      * Collections the garbage by removing the cache entries from
@@ -412,7 +435,7 @@ class MemcacheServer implements Cache
                 if ($value != "0") {
                     $targetTime = $curTime + (int) $value;
                     $tmpar = $this->invalidationArray;
-                    if (! $tmpar[$targetTime]) {
+                    if (!$tmpar[$targetTime]) {
                         $tmpar[$targetTime] = array();
                     }
                     $tmpar[$targetTime][] = $key;
@@ -594,7 +617,7 @@ class MemcacheServer implements Cache
      *
      * @return string The new line value
      */
-    protected function getNewLine()
+    public function getNewLine()
     {
         return $this->newLine;
     }
@@ -873,27 +896,20 @@ class MemcacheServer implements Cache
      */
     protected function storeIncrement($key, $newValue = null)
     {
-        
         $this->store->lock();
-        
         if ($this->store[$this->getStorePrefix() . $key]) {
-            
-            $value = $this->store[$this->getStorePrefix() . $key];
-            
-            if (is_numeric($value)) {
+            $value = (integer) $this->store[$this->getStorePrefix() . $key];
+            if (is_numeric($value) && $newValue == null) {
                 $this->store[$this->getStorePrefix() . $key] = $value + 1;
             } else {
                 $this->store[$this->getStorePrefix() . $key] = $newValue;
             }
-            
             $result = $this->store[$this->getStorePrefix() . $key];
             
         } else {
             $result = "NOT_FOUND";
         }
-        
         $this->store->unlock();
-        
         return $result;
     }
     
@@ -907,27 +923,20 @@ class MemcacheServer implements Cache
      */
     protected function storeDecrement($key, $newValue = null)
     {
-
         $this->store->lock();
-        
         if ($this->store[$this->getStorePrefix() . $key]) {
-            
-            $value = $this->store[$this->getStorePrefix() . $key];
-            
-            if (is_numeric($value) && $value > 0) {
+            $value = (integer) $this->store[$this->getStorePrefix() . $key];
+            if (is_numeric($value) && $value > 0 && $newValue == null) {
                 $this->store[$this->getStorePrefix() . $key] = $value + 1;
             } else {
                 $this->store[$this->getStorePrefix() . $key] = $newValue;
             }
-            
             $result = $this->store[$this->getStorePrefix() . $key];
             
         } else {
             $result = "NOT_FOUND";
         }
-
         $this->store->unlock();
-        
         return $result;
     }
 }
