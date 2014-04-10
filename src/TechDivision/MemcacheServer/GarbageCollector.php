@@ -24,8 +24,6 @@
 
 namespace TechDivision\MemcacheServer;
 
-use TechDivision\WebServer\Interfaces\ServerContextInterface;
-
 /**
  * This thread is responsible for handling the garbage collection.
  *
@@ -43,24 +41,24 @@ class GarbageCollector extends \Thread
 {
 
     /**
-     * Holds the server context instance.
+     * Holds the cache API.
      *
-     * @var \TechDivision\WebServer\Interfaces\ServerContextInterface The server context instance
+     * @var \TechDivision\MemcacheServer\Cache
      */
-    protected $serverContext;
+    protected $cache;
 
     /**
      * Constructs the garbage collector instance.
      *
-     * @param \TechDivision\WebServer\Interfaces\ServerContextInterface $serverContext The server context instance
+     * @param \TechDivision\MemcacheServer\Cache $cache The cache API
      * 
      * @return void
      */
-    public function __construct(ServerContextInterface $serverContext)
+    public function __construct(Cache $cache)
     {
         
-        // set the server context
-        $this->serverContext = $serverContext;
+        // set the cache API
+        $this->cache = $cache;
         
         // start server thread
         $this->start();
@@ -69,11 +67,11 @@ class GarbageCollector extends \Thread
     /**
      * Returns the context instance.
      *
-     * @return \TechDivision\WebServer\Interfaces\ServerContextInterface
+     * @return \TechDivision\MemcacheServer\Cache The cache API
      */
-    public function getServerContext()
+    public function getCache()
     {
-        return $this->serverContext;
+        return $this->cache;
     }
 
     /**
@@ -84,7 +82,7 @@ class GarbageCollector extends \Thread
     public function run()
     {
         while (true) {
-            $this->getServerContext()->getCache()->gc();
+            $this->getCache()->gc();
         }
     }
 }
