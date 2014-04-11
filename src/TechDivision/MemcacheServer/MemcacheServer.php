@@ -896,21 +896,32 @@ class MemcacheServer implements Cache
      */
     protected function storeIncrement($key, $newValue = null)
     {
+        
         $this->store->lock();
-        if ($this->store[$this->getStorePrefix() . $key]) {
-            $value = (integer) $this->store[$this->getStorePrefix() . $key];
-            if (is_numeric($value) && $newValue == null) {
-                $this->store[$this->getStorePrefix() . $key] = $value + 1;
+        
+        // first we check if we have a value with the passed key in our storage
+        if ($value = $this->store[$this->getStorePrefix() . $key]) {
+            
+            // if existing data is numeric and new value is empty we increment by 1
+            if (is_numeric($value['value']) && $newValue == null) {
+                $value['value'] = (integer) $value['value'] + 1;
             } else {
-                $this->store[$this->getStorePrefix() . $key] = $newValue;
+                $value['value'] = $newValue;
             }
-            $result = $this->store[$this->getStorePrefix() . $key];
+                
+            // calculate the bytes and store the data
+            $value['bytes'] = strlen($value['value']);
+            $this->store[$this->getStorePrefix() . $key] = $value;
+            
+            // result is the new value
+            $result = $value['value'];
             
         } else {
             $result = "NOT_FOUND";
         }
+        
         $this->store->unlock();
-        return $result;
+        return (string) $result;
     }
     
     /**
@@ -923,20 +934,31 @@ class MemcacheServer implements Cache
      */
     protected function storeDecrement($key, $newValue = null)
     {
+        
         $this->store->lock();
-        if ($this->store[$this->getStorePrefix() . $key]) {
-            $value = (integer) $this->store[$this->getStorePrefix() . $key];
-            if (is_numeric($value) && $value > 0 && $newValue == null) {
-                $this->store[$this->getStorePrefix() . $key] = $value + 1;
+
+        // first we check if we have a value with the passed key in our storage
+        if ($value = $this->store[$this->getStorePrefix() . $key]) {
+
+            // if existing data is numeric, the value is > 0 and new value is empty we decrement by 1
+            if (is_numeric($value['value']) && $value['value'] > 0 && $newValue == null) {
+                $value['value'] = (integer) $value['value'] - 1;
             } else {
-                $this->store[$this->getStorePrefix() . $key] = $newValue;
+                $value['value'] = $newValue;
             }
-            $result = $this->store[$this->getStorePrefix() . $key];
+            
+            // calculate the bytes and store the data
+            $value['bytes'] = strlen($value['value']);
+            $this->store[$this->getStorePrefix() . $key] = $value;
+
+            // result is the new value
+            $result = $value['value'];
             
         } else {
             $result = "NOT_FOUND";
         }
+        
         $this->store->unlock();
-        return $result;
+        return (string) $result;
     }
 }
