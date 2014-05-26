@@ -13,8 +13,7 @@
     ],
     "require": {
         "php" : ">=5.3.0",
-        "techdivision/memcacheprotocol" : "dev-master" ,
-        "techdivision/server": "dev-master"
+        "techdivision/memcacheprotocol" : "dev-master"
     },
     "autoload": {
         "psr-0": {"TechDivision": "src/"}
